@@ -7,7 +7,7 @@ import type { ImageSlot } from "@/content/types";
 import { ArrowRight, ChevronDown, Phone, Shield } from "./icons";
 import { brand, telHref, waHref } from "@/content/site";
 
-const ROTATE_MS = 3500;
+const ROTATE_MS = 2000;
 
 /**
  * Showroom hero.

@@ -4363,9 +4363,11 @@
     .hero__scrim {
       background: linear-gradient(
         180deg,
-        rgba(255, 255, 255, 0.94) 0%,
-        rgba(255, 255, 255, 0.9) 46%,
-        rgba(255, 255, 255, 0.97) 100%
+        rgba(255, 255, 255, 0.96) 0%,
+        rgba(255, 255, 255, 0.9) 26%,
+        rgba(255, 255, 255, 0.55) 52%,
+        rgba(255, 255, 255, 0.4) 70%,
+        rgba(255, 255, 255, 0.88) 100%
       );
     }
     .hero__img { object-position: 68% 30%; }
@@ -5077,7 +5079,7 @@
   @media (max-width: 720px) {
     .hero__tile > img,
     .hero__settled img {
-      object-position: 60% 35%;
+      object-position: 68% 30%;
     }
     .hero__ticks {
       right: 1rem;
@@ -5387,38 +5389,5 @@
     opacity: 0;
     pointer-events: none;
     display: block; /* overrides the retired display:none toggle */
-  }
-}@layer components {
-  /* -- Mobile hero: the car gets its own visible band ------------------
-     Below 720px the copy column sits on the clean canvas and the photo
-     drops beneath it as an uncropped band, so the car reads clearly
-     instead of washing out behind the read scrim. Desktop unaffected. */
-  @media (max-width: 720px) {
-    .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      align-items: flex-start;
-    }
-    .hero__media {
-      position: relative;
-      inset: auto;
-      order: 2;
-      width: 100%;
-      height: clamp(220px, 64vw, 380px);
-      margin-top: calc(-1 * var(--space-2xs));
-    }
-    .hero__content {
-      order: 1;
-      align-self: stretch;
-    }
-    .hero__scrim {
-      display: none;
-    }
-    /* The cars render slightly above centre; aim the crop at them. */
-    .hero__tile > img,
-    .hero__settled img {
-      object-position: 62% 42%;
-    }
   }
 }
