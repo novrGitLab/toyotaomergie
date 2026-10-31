@@ -45,4 +45,4 @@ next-env.d.ts
 # raw logo source
 /regemoto.webp
 # temp verification scripts
-/*.mjs/*.css
+/*.mjs/*.css/.chk*.mjs
