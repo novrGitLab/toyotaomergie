@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { TileCascade } from "./TileCascade";
@@ -48,7 +48,7 @@ export function VehicleHero({
 }) {
   const [active, setActive] = useState(0);
   const [rotate, setRotate] = useState(false);
-  const gallery = images.length ? images : [];
+  const gallery = useMemo(() => (images.length ? images : []), [images]);
 
   // Auto-advance gate: no reduced motion, at least two images.
   useEffect(() => {
@@ -68,6 +68,15 @@ export function VehicleHero({
     }, GALLERY_ROTATE_MS);
     return () => clearInterval(id);
   }, [rotate, gallery.length, active]);
+
+  // Preload the upcoming image so its cascade never starts on blank tiles.
+  useEffect(() => {
+    const next = gallery[(active + 1) % gallery.length];
+    if (!next?.src) return;
+    const im = new window.Image();
+    im.src = next.src;
+    im.decode?.().catch(() => {});
+  }, [active, gallery]);
 
   return (
     <section className="vhero" aria-labelledby="vhero-title">

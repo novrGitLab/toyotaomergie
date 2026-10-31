@@ -64,12 +64,28 @@ export function Header() {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Sticky condense.
+  // Sticky condense. Hysteresis (pin past 64px, un-pin only under 16px)
+  // stops the utility bar from flickering when the scroll position sits on
+  // the trigger; rAF batches so rapid wheel events toggle at most per frame.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
+    let ticking = false;
+    const update = () => {
+      const y = window.scrollY;
+      setScrolled((prev) => (prev ? y > 16 : y > 64));
+      ticking = false;
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   // Escape closes the mega menu and the mobile drawer. When the menu was open,

@@ -65,6 +65,7 @@ export function TileCascade({
   className?: string;
 }) {
   const [settled, setSettled] = useState(false);
+  const [ready, setReady] = useState(false);
   const [compact, setCompact] = useState(false);
   const [reduce, setReduce] = useState(false);
 
@@ -87,17 +88,39 @@ export function TileCascade({
   const { cols, rows } = compact ? GRID.mobile : GRID.desktop;
   const cascadeMs = (rows + cols - 2) * TILE_STEP_MS + TILE_FADE_MS;
 
-  // Settle once the cascade has finished (or immediately under reduced
-  // motion / when there is no photo to tile).
+  // Cascade readiness. The tiles only animate once the real image has been
+  // fetched and decoded - otherwise the cascade plays over blank tiles and
+  // looks broken on a cold load. The settle timer starts after readiness, so
+  // the resting swap can never land before the photo is visible.
   useEffect(() => {
     if (reduce || !slot.src) {
+      setReady(true);
       setSettled(true);
       return;
     }
+    setReady(false);
     setSettled(false);
-    const timer = setTimeout(() => setSettled(true), cascadeMs + SETTLE_BUFFER_MS);
-    return () => clearTimeout(timer);
-  }, [slot.src, cascadeMs, reduce, seed]);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let cancelled = false;
+    const go = () => {
+      if (cancelled) return;
+      cancelled = true;
+      setReady(true);
+      timer = setTimeout(() => setSettled(true), cascadeMs + SETTLE_BUFFER_MS);
+    };
+    // Safety net: never leave the hero blank if the load events stall.
+    const safety = setTimeout(go, 6000);
+    const img = new Image();
+    img.onload = go;
+    img.onerror = go;
+    img.src = slot.src;
+    img.decode?.().catch(() => {});
+    return () => {
+      cancelled = true;
+      clearTimeout(safety);
+      if (timer) clearTimeout(timer);
+    };
+  }, [slot.src, seed, cascadeMs, reduce]);
 
   // Random origin tile, deterministic per seed.
   const origin = (() => {
@@ -135,6 +158,12 @@ export function TileCascade({
         <img src={slot.src} alt="" decoding="async" />
       </div>
     );
+  }
+
+  // Not ready yet: hold the empty box so the cascade always starts on a
+  // clean background, exactly like the load-time presentation intends.
+  if (!ready) {
+    return <div className={`hero__tiles${cls}`} aria-hidden="true" style={{ "--cols": cols, "--rows": rows } as React.CSSProperties} />;
   }
 
   return (

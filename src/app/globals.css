@@ -5371,4 +5371,21 @@
   /* Retired typographic wordmark rules reuse: the name/dot elements no
      longer render, so their old rules are dead by design. */
   .wordmark__name { display: none; }
+}@layer components {
+  /* Utility bar collapse: smooth shrink + slide away, never a display
+     toggle (the hard toggle is what made the two header bars flicker at
+     the threshold). Hysteresis lives in the scroll handler. */
+  .brandlayer {
+    max-height: 3.25rem;
+    overflow: hidden;
+    transition:
+      max-height 280ms var(--ease-ui),
+      opacity 220ms var(--ease-ui);
+  }
+  .masthead[data-scrolled="true"] .brandlayer {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+    display: block; /* overrides the retired display:none toggle */
+  }
 }
