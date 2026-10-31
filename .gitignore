@@ -44,3 +44,5 @@ next-env.d.ts
 /toyota_dealership/
 # raw logo source
 /regemoto.webp
+# temp verification scripts
+/*.mjs
